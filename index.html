@@ -2452,19 +2452,23 @@ function submitRunTime(distKey) {
 
 // ── SWIPE BETWEEN DAYS ──
 let touchStartX = 0, touchStartY = 0;
+let swipeInited = false;
 function initSwipe() {
-  const el = document.getElementById('workout-content');
+  if (swipeInited) return; // only ever attach once
+  swipeInited = true;
+  const el = document.getElementById('app');
   if (!el) return;
   el.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
   }, { passive: true });
   el.addEventListener('touchend', e => {
+    if (currentView !== 'workout') return;
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      if (dx < 0 && currentDay < 5) { selectDay(currentDay + 1); }
-      else if (dx > 0 && currentDay > 1) { selectDay(currentDay - 1); }
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+      if (dx < 0 && currentDay < 5) selectDay(currentDay + 1);  // swipe left → next day
+      else if (dx > 0 && currentDay > 1) selectDay(currentDay - 1); // swipe right → prev day
     }
   }, { passive: true });
 }
@@ -2777,7 +2781,6 @@ function renderWorkout() {
     </button>`;
 
   document.getElementById('workout-content').innerHTML = html;
-  setTimeout(initSwipe, 50);
 }
 
 function toggleSection(id) {
